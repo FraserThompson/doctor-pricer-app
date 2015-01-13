@@ -1,0 +1,49 @@
+/* Empty. Add your own CSS if you like */
+.center {
+/*    top: 50%;
+    -webkit-transform: translateY(-50%);
+    -moz-transform: translateY(-50%);
+    -ms-transform: translateY(-50%);
+    -o-transform: translateY(-50%);
+    transform: translateY(-50%);
+    position: absolute !important;*/
+    text-align: center;
+    height: 80%;
+    width: 100%;
+	display: flex;
+  	align-items: center;
+  	justify-content: center;
+}
+
+.center h1, h2, h3 {
+	text-align: center;
+}
+.center input {
+	margin: auto;
+}
+
+.item.item-input{
+	text-align: center;
+}
+
+.input-label {
+	text-align: left !important;
+}
+
+#list-right {
+	float:right;
+	height:100%;
+}
+
+#list-left {
+	float:left;
+	max-width: 80%;
+	white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -o-text-overflow: ellipsis;
+}
+
+#map_canvas {
+	style="height: 450px; width: 100%;"
+}

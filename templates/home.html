@@ -1,0 +1,15 @@
+<ion-view view-title="Doctor Pricer">
+  <ion-content ng-controller="HomeController" class="center">
+  	<h1>Hi!</h1>
+  	<form class="simple-form" novalidate>
+		<input type="submit" ng-click="continue()" value={{userLocation}} class="button button-block button-positive"></input>
+		<h3>Or</h3>
+	  	<div class="list">
+		  	<label class="item item-input">
+			  	 <i class="icon ion-search placeholder-icon"></i>
+			  	<ion-google-place placeholder="Type an address" ng-model="user.location" ng-change="update(user)"/>
+		 	</label>
+		</div>
+	</form>
+  </ion-content>
+</ion-view>
