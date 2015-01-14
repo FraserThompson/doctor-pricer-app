@@ -1,12 +1,4 @@
-/* Empty. Add your own CSS if you like */
 .center {
-/*    top: 50%;
-    -webkit-transform: translateY(-50%);
-    -moz-transform: translateY(-50%);
-    -ms-transform: translateY(-50%);
-    -o-transform: translateY(-50%);
-    transform: translateY(-50%);
-    position: absolute !important;*/
     text-align: center;
     height: 80%;
     width: 100%;
@@ -45,5 +37,9 @@
 }
 
 #map_canvas {
-	style="height: 450px; width: 100%;"
+	width: 100%;
+}
+
+.item-select select {
+  font-family: inherit;
 }

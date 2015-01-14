@@ -31,11 +31,25 @@ angular.module('starter.services', [])
 		$ionicLoading.show({
      		 template: 'Loading...'
     	});
-		$http.get('data.json')
-			.then(function(res) {
-   				$ionicLoading.hide();
-				self.collection = res.data;
-			});
+		$.ajax({
+		    cache: false,
+		    dataType: "jsonp",
+		    type: "GET",
+		    crossDomain: true,
+		    jsonp: false,
+		    jsonpCallback: "callback",
+		    url: "https://fraserthompson.github.io/cheap-practice-finder/data.json.js?callback=callback",
+		    async: false,
+		    error: function (XMLHttpRequest, textStatus, errorThrown) {
+		    	$ionicLoading.show({
+     		 		template: "Error updating practice data. Are you sure you have an internet connection?"
+    			});
+		    },
+		    success: function(request, status, error){
+		    	$ionicLoading.hide();
+		    	self.collection = request['practices'];
+		    }
+		});
 
 		var getPrice = function(age, prices) {
 			if (!prices || prices.length == 0){

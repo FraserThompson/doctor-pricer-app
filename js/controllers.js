@@ -30,8 +30,12 @@ angular.module('starter.controllers', [])
 		};
 	})
 
-	.controller('ResultController', function($scope, PracticesCollection, SearchModel) {
+	.controller('ResultController', function($scope, $state, $ionicHistory, PracticesCollection, SearchModel) {
 		var self = this;
+		if (SearchModel.displayAddress == "error") {
+			$state.go('home');
+			$ionicHistory.clearHistory()
+		}
 		$scope.practices = PracticesCollection.displayCollection;
 		$scope.practiceCount = PracticesCollection.length;
 		$scope.changeRadius = function(distance) {
@@ -49,7 +53,7 @@ angular.module('starter.controllers', [])
 		PracticesCollection.changeRadius(2);
 	})
 
-	.controller('PracticeController', function($scope, $stateParams, PracticesCollection) {
+	.controller('PracticeController', function($scope, $stateParams, $window, PracticesCollection) {
 		var self = this;
 		$scope.practiceName = $stateParams.id;
 		$scope.thisPractice = PracticesCollection.displayCollection[$stateParams.id];

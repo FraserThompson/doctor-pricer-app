@@ -22,6 +22,8 @@ angular.module('starter.directives', [])
                 
                 function gInit() {
                     var Location = model.endCoord,
+                        mapHeight = ($window.innerHeight - 180) + 'px';
+                        document.getElementById("map_canvas").style.height = mapHeight;
                         directionsService = new google.maps.DirectionsService(),
                         directionsRenderer = new google.maps.DirectionsRenderer(),
                         mapOptions = {
