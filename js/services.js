@@ -15,14 +15,13 @@ angular.module('starter.services', [])
 					self.displayAddress = results[0].address_components[0]['short_name'] + " " + results[0].address_components[1]['short_name'];
 					successCallback();
 				} else {
-					console.log("Error geocoding input address from coords: " + status);
 					failCallback("Error geocoding input address.");
 				}
 			});
 		}
 	})
 
-	.service('PracticesCollection', function($ionicLoading, $http) {
+	.service('PracticesCollection', function($ionicLoading, $ionicPopup, $http) {
 		var self = this;
 		var collection = []; //initial fetch
 		this.filteredCollection = []; //after filtering out distances over 15
@@ -40,10 +39,16 @@ angular.module('starter.services', [])
 		    jsonpCallback: "callback",
 		    url: "https://fraserthompson.github.io/cheap-practice-finder/data.json.js?callback=callback",
 		    async: false,
-		    error: function (XMLHttpRequest, textStatus, errorThrown) {
-		    	$ionicLoading.show({
-     		 		template: "Error updating practice data. Are you sure you have an internet connection?"
-    			});
+		    error: function (request, status, error) {
+				 $scope.showAlert = function() {
+				   var alertPopup = $ionicPopup.alert({
+				     title: "Couldn't get practice data!",
+				     template: "Are you sure you have an internet connection?"
+				   })
+				  	.then(function(result) {
+	             		ionic.Platform.exitApp();
+	               	});
+				  };
 		    },
 		    success: function(request, status, error){
 		    	$ionicLoading.hide();

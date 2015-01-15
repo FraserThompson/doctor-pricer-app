@@ -4,9 +4,25 @@
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
 angular.module('starter', ['ionic', 'ion-google-place', 'starter.controllers', 'starter.services', 'starter.directives'])
+  .run(function($ionicPlatform, $ionicLoading, $ionicPopup) {
+    $ionicPlatform.ready(function() {
+        if(window.Connection) {
+            if(navigator.connection.type == Connection.NONE) {
+              $ionicLoading.hide();
+              $ionicPopup.alert({
+                  title: "Couldn't get practice data",
+                  content: "You'll need an active internet connection to use Doctor Pricer."
+              })
+              .then(function() {
+                ionic.Platform.exitApp();
+              });
+            }
+        }
+    });
+  })
+
   .config(function($stateProvider, $urlRouterProvider) {
   $stateProvider
-
     .state('home', {
       url: '/',
       templateUrl: 'templates/home.html',
@@ -33,6 +49,7 @@ angular.module('starter', ['ionic', 'ion-google-place', 'starter.controllers', '
 
      $urlRouterProvider.otherwise('/');
   })
+
 .run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
@@ -44,6 +61,4 @@ angular.module('starter', ['ionic', 'ion-google-place', 'starter.controllers', '
       StatusBar.styleDefault();
     }
   })
-
 });
-
