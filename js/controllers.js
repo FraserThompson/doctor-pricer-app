@@ -1,23 +1,27 @@
 angular.module('starter.controllers', [])
-	.controller('HomeController', function($scope, $state, SearchModel, PracticesCollection) {
-		$scope.userLocation = "Find practices near you";
+	.controller('HomeController', function($scope, $state, $sce, $ionicLoading, SearchModel, PracticesCollection) {
+		$scope.locationButton = $sce.trustAsHtml("Find practices near you");
 
 		$scope.update = function(user) {
+			$ionicLoading.show({
+     		 	template: "Hold on..."
+    		});
 			SearchModel.address = user.location['formatted_address'];
 			SearchModel.coord[0] = user.location.geometry.location['k'];
 			SearchModel.coord[1] = user.location.geometry.location['D'];
 			SearchModel.displayAddress = user.location.address_components[0]['short_name'] + " " + user.location.address_components[1]['short_name'];
 			$state.go('age');
+			$ionicLoading.hide();
 		};
 
 		$scope.continue = function() {
-			$scope.userLocation = "Hold on...";
+			$scope.locationButton = $sce.trustAsHtml("<i class='icon ion-loading-c'></i>");
 			navigator.geolocation.getCurrentPosition(function(response){
 				SearchModel.coord[0] = response.coords['latitude']
 				SearchModel.coord[1] = response.coords['longitude'];
 				SearchModel.calculateAddress(function() {
 					$scope.$apply(function() {
-						$scope.userLocation = SearchModel.address;
+						$scope.locationButton = SearchModel.address;
 					});
 					$state.go('age');
 				});

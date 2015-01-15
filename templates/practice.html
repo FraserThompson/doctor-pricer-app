@@ -3,11 +3,16 @@
 		<h1 class="title">{{practiceName}}</h1>
 	</ion-nav-title>
   	<ion-content>
-      	<p><strong>PHO:</strong> {{thisPractice.pho}}</p>
-      	<p><strong>Phone:</strong> {{thisPractice.phone}}</p>
-      	<p><strong>Address:</strong> {{thisPractice.address}}</p>
-        <p><a href={{thisPractice.url}}>Go to website</a></p>
-
-      <div gmap="gmap"></div>
+    <div class="card">
+        <div class="item item-text-wrap">
+            <button style = "float:right;"class="button button-positive" href={{thisPractice.url}}>
+              Website
+            </button>
+          	<strong>PHO:</strong><p> {{thisPractice.pho}}</p>
+          	<strong>Phone:</strong><p> {{thisPractice.phone}}</p>
+          	<strong>Address:</strong><p> {{thisPractice.address}}</p>
+            <div gmap="gmap"></div>
+        </div>
+    </div>
   </ion-content>
 </ion-view>

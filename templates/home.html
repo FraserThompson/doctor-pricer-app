@@ -2,7 +2,8 @@
   <ion-content ng-controller="HomeController" class="center">
   	<h1>Hi!</h1>
   	<form class="simple-form" novalidate>
-		<input type="submit" ng-click="continue()" value={{userLocation}} class="button button-block button-positive"></input>
+		<button ng-bind-html="locationButton" ng-click="continue()" value={{userLocation}} class="button button-block button-positive">
+		</button>
 		<h3>Or</h3>
 	  	<div class="list">
 		  	<label class="item item-input">

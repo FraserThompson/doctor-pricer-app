@@ -1,26 +1,27 @@
 
-<ion-view view-title="Result">
+<ion-view view-title="List">
 	<ion-nav-title>
 		<h1 class="title">{{address}}</h1>
 	</ion-nav-title>
-  	<ion-content ng-controller="ResultController">
+  	<ion-content ng-controller="ResultController"  overflow-scroll='true'>
 		<label class="item item-input item-select" id="radius-select">
 		    <div class="input-label">
 		      <p>Displaying {{practiceCount}} practices within</p>
 		    </div>
 			<select ng-model="selectedItem" ng-init="selectedItem = radiuses[0]" ng-options="r.name for r in radiuses" ng-change="changeRadius(selectedItem.id)"></select>
 		</label>
-	  	<ion-list>
+	  	<ion-list can-swipe='false'>
 		  	<ion-item ng-repeat="practice in practices | orderObjectBy : 'price'" href="#/result/practice/{{practice.name}}">
-			  	<div id="list-right">
-			  		<h2><strong>${{practice.price | number: 2}}</strong></h2>
-				</div>
 				<div id="list-left">
 				  	<h2>{{practice.name}}</h2>
 			  		<p>
 				  		{{practice.distance | number : 1}}km away
 			  		</p>
 			  	</div>
+			  	<div id="list-right">
+			  		<h2><strong>${{practice.price | number: 2}}</strong></h2>
+<!-- 		  			<span class="ion-chevron-right"></span> -->
+				</div>
 		  	</ion-item>
 	  	</ion-list>
   </ion-content>

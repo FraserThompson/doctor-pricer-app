@@ -23,8 +23,7 @@
 }
 
 #list-right {
-	float:right;
-	height:100%;
+	float: right;
 }
 
 #list-left {
@@ -42,4 +41,16 @@
 
 .item-select select {
   font-family: inherit;
+}
+
+.item-content {
+	padding-right: 15px !important;
+}
+
+#age-input {
+	width: 110px;
+}
+
+#age-wrapper {
+	margin: 15px;
 }

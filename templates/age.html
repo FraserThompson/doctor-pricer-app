@@ -2,10 +2,10 @@
   <ion-content class="center">
   	<form class="simple-form" novalidate>
 	  	<div class="list">
-		 	<label class="item item-input">
-				<input id="age-input" type="tel" ng-model="user.age" placeholder="Enter your age" maxlength="3"></input>
+		 	<label id="age-wrapper" class="item item-input">
+				<input class="input-centre" id="age-input" type="tel" ng-model="user.age" placeholder="Enter your age" maxlength="3"></input>
 			</label>
-			<input type="submit" ng-click="finish(user)" value="Show me!" class="button button-energized"></input>
+			<input type="submit" ng-click="finish(user)" value="Show me!" class="button button-positive"></input>
 		</div>
 	</form>
   </ion-content>
