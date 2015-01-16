@@ -1,4 +1,4 @@
-angular.module('starter.directives', [])
+angular.module('doctorpricer.directives', [])
     .directive('gmap', function ($window,$parse) {
         var counter = 0;
          

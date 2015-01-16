@@ -1,4 +1,4 @@
-angular.module('starter.controllers', [])
+angular.module('doctorpricer.controllers', [])
 	.controller('HomeController', function($scope, $state, $timeout, $sce, $ionicLoading, $ionicPopup, SearchModel, PracticesCollection) {
 		$scope.locationButton = $sce.trustAsHtml("Find practices near you");
 
@@ -14,22 +14,19 @@ angular.module('starter.controllers', [])
 			$ionicLoading.hide();
 		};
 
-		function geolocFail() {
-			$scope.locationButton = $sce.trustAsHtml("Try to find you again");
-			 $scope.showAlert = function() {
-			   var alertPopup = $ionicPopup.alert({
-			     title: "Couldn't find you.",
-			     template: "You might need to enable GPS, or the signal might be weak."
-			   });
-			}
-		};
-
-		$scope.continue = function() {
+		$scope.continue = function() {		
+			geolocFail = function() {
+			   	var alertPopup = $ionicPopup.alert({
+				     title: "Couldn't find you.",
+				     template: "You might need to enable GPS, or the signal might be weak."
+			   	});
+				$scope.locationButton = $sce.trustAsHtml("Try again?");
+			};
 			if (navigator.geolocation) {
 				var location_timeout = $timeout(geolocFail, 10000);
 				$scope.locationButton = $sce.trustAsHtml("<i class='icon ion-loading-c'></i>");
 				navigator.geolocation.getCurrentPosition(function(response){
-					clearTimeout(location_timeout);
+					$timeout.cancel(location_timeout);
 					SearchModel.coord[0] = response.coords['latitude'];
 					SearchModel.coord[1] = response.coords['longitude'];
 					SearchModel.calculateAddress(function() {
@@ -40,7 +37,7 @@ angular.module('starter.controllers', [])
 					});
 				}, 
 				function() {
-					clearTimeout(location_timeout);
+					$timeout.cancel(location_timeout);
 					geolocFail();
 				}, {enableHighAccuracy:true});
 			} else {
@@ -77,17 +74,22 @@ angular.module('starter.controllers', [])
 		PracticesCollection.changeRadius(2);
 	})
 
-	.controller('PracticeController', function($scope, $stateParams, $ionicLoading, $window, PracticesCollection) {
+	.controller('PracticeController', function($scope, $stateParams, $ionicLoading, $ionicPopup, $window, PracticesCollection) {
 		var self = this;
 		$scope.practiceName = $stateParams.id;
 		$scope.thisPractice = PracticesCollection.displayCollection[$stateParams.id];
+		$scope.openURL = function(url) {
+			var ref = window.open(url, '_system');
+		}
+		
 		$scope.gmap = {
             fromCoord: PracticesCollection.displayCollection[$stateParams.id]['start'],
             endCoord: PracticesCollection.displayCollection[$stateParams.id]['end'],
             showError: function (status) {
-                $ionicLoading.show({
-     		 		template: "Oh no! There was a crazy unexpected error rendering the map! Try again maybe?"
-    			});
+			   var alertPopup = $ionicPopup.alert({
+			     title: "Sorry.",
+			     template: "Usually you'd see a map here but there was an unexpected error."
+			   });
             }
         };
 	})

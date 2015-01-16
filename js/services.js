@@ -1,4 +1,4 @@
-angular.module('starter.services', [])
+angular.module('doctorpricer.services', [])
 	.service('SearchModel', function() {
 		var self = this;
 		this.address = "29 dundas street, dunedin, new zealand";
@@ -40,15 +40,13 @@ angular.module('starter.services', [])
 		    url: "https://fraserthompson.github.io/cheap-practice-finder/data.json.js?callback=callback",
 		    async: false,
 		    error: function (request, status, error) {
-				 $scope.showAlert = function() {
-				   var alertPopup = $ionicPopup.alert({
-				     title: "Couldn't get practice data!",
-				     template: "Are you sure you have an internet connection?"
-				   })
-				  	.then(function(result) {
-	             		ionic.Platform.exitApp();
-	               	});
-				  };
+			   var alertPopup = $ionicPopup.alert({
+			     title: "Couldn't get practice data!",
+			     template: "Are you sure you have an internet connection?"
+			   })
+			  	.then(function(result) {
+             		ionic.Platform.exitApp();
+               	});
 		    },
 		    success: function(request, status, error){
 		    	$ionicLoading.hide();

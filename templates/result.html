@@ -19,8 +19,7 @@
 			  		</p>
 			  	</div>
 			  	<div id="list-right">
-			  		<h2><strong>${{practice.price | number: 2}}</strong></h2>
-<!-- 		  			<span class="ion-chevron-right"></span> -->
+			  		<h2 ng-if="practice.price != 1000"><strong>${{practice.price | number: 2}}</strong></h2>
 				</div>
 		  	</ion-item>
 	  	</ion-list>
