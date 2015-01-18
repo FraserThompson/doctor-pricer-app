@@ -1,18 +1,15 @@
-<ion-view view-title="Result">
-	<ion-nav-title>
-		<h1 class="title">{{practiceName}}</h1>
-	</ion-nav-title>
-  	<ion-content>
-    <div class="card">
-        <div class="item item-text-wrap">
-            <button style="float:right;"class="button button-positive" ng-click='openURL("{{thisPractice.url}}")'>
-              Website
-            </button>
-          	<strong>PHO:</strong><p> {{thisPractice.pho}}</p>
-          	<strong>Phone:</strong><p> {{thisPractice.phone}}</p>
-          	<strong>Address:</strong><p> {{thisPractice.address}}</p>
-            <div gmap="gmap"></div>
-        </div>
-    </div>
-  </ion-content>
+<ion-view view-title="{{practiceName}}">
+    <ion-content>
+      <div class="card">
+          <div class="item item-text-wrap">
+              <button style="float:right;"class="button button-positive" ng-click='openURL("{{thisPractice.url}}")'>
+                Website
+              </button>
+              <strong>PHO:</strong><p> {{thisPractice.pho}}</p>
+              <strong>Phone:</strong><p> {{thisPractice.phone}}</p>
+              <strong>Address:</strong><p> {{thisPractice.address}}</p>
+              <div gmap="gmap"></div>
+          </div>
+      </div>
+    </ion-content>
 </ion-view>

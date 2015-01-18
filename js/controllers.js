@@ -47,51 +47,95 @@ angular.module('doctorpricer.controllers', [])
 
 		$scope.finish = function(user) {
 			SearchModel.age = user.age;
-			$state.go('result');
+			PracticesCollection.filterCollection(SearchModel.coord, SearchModel.age);
+			PracticesCollection.changeRadius(2);
+			$state.go('result.practice');
 		};
 	})
 
-	.controller('ResultController', function($scope, $state, $ionicHistory, PracticesCollection, SearchModel) {
+	.controller('MenuController', function($scope, $state, $window, $ionicSideMenuDelegate, $ionicHistory, PracticesCollection, SearchModel) {
 		var self = this;
+
+		$scope.practices = PracticesCollection.displayCollection;
+		$scope.practiceCount = PracticesCollection.length;
+		$scope.menuWidth = $window.innerWidth < 360 ? $window.innerWidth : 360; // Width of the menu should be no more than 360
+		$scope.address = SearchModel.displayAddress;
+
 		if (SearchModel.displayAddress == "error") {
 			$state.go('home');
 			$ionicHistory.clearHistory()
 		}
-		$scope.practices = PracticesCollection.displayCollection;
-		$scope.practiceCount = PracticesCollection.length;
-		$scope.changeRadius = function(distance) {
-			PracticesCollection.changeRadius(distance);
-			$scope.practiceCount = PracticesCollection.length;
-		}
+
 		$scope.radiuses = [
 			{id: 2, name: '2km'},
 			{id: 5, name: '5km'},
 			{id: 10, name: '10km'},
 			{id: 15, name: '15km'},
 		];
-		$scope.address = SearchModel.displayAddress;
-		PracticesCollection.filterCollection(SearchModel.coord, SearchModel.age);
-		PracticesCollection.changeRadius(2);
+
+		$scope.goHome = function () {
+			$state.go('home');
+		};
+
+        $scope.toggleLeftSideMenu = function() {
+        	console.log('Toggling left');
+    		$ionicSideMenuDelegate.toggleLeft();
+  		};
+
+
+		$scope.changeRadius = function(distance) {
+			PracticesCollection.changeRadius(distance);
+			$scope.practiceCount = PracticesCollection.length;
+		};
+
+		$scope.navPractice = function(id) {
+			SearchModel.selectedPractice = id;
+		};
+
+		$scope.isActive = function(id) {
+        	return id == SearchModel.selectedPractice;
+        };
+		
+        $scope.setFirst = function(id, first) {
+        	if (first) {
+        		SearchModel.selectedPractice = id;
+        	}
+        };
 	})
 
-	.controller('PracticeController', function($scope, $stateParams, $ionicLoading, $ionicPopup, $window, PracticesCollection) {
+	.controller('PracticeController', function($scope, $timeout, $ionicPopup, $window, SearchModel, PracticesCollection) {
 		var self = this;
-		$scope.practiceName = $stateParams.id;
-		$scope.thisPractice = PracticesCollection.displayCollection[$stateParams.id];
+
+		$scope.thisPractice = PracticesCollection.displayCollection[SearchModel.selectedPractice];
+		$scope.$watch(function() {
+			return SearchModel.selectedPractice;
+		}, function(val) {
+			$scope.thisPractice = PracticesCollection.displayCollection[SearchModel.selectedPractice];
+			$scope.practiceName =  $scope.thisPractice['name'];
+        };
+
+        });
+
 		$scope.openURL = function(url) {
 			var ref = window.open(url, '_system');
-		}
-		
+		};
+
 		$scope.gmap = {
-            fromCoord: PracticesCollection.displayCollection[$stateParams.id]['start'],
-            endCoord: PracticesCollection.displayCollection[$stateParams.id]['end'],
+            fromCoord: $scope.thisPractice['start'],
+            endCoord: $scope.thisPractice['end'],
             showError: function (status) {
 			   var alertPopup = $ionicPopup.alert({
 			     title: "Sorry.",
-			     template: "Usually you'd see a map here but there was an unexpected error."
+			     template: "Usually you'd see directions here but there was an unexpected error. Check your connection."
 			   });
             }
         };
+
+		$timeout(function () { // Wait for DOM and then wait a bit longer 
+			$timeout(function() {
+		    	$scope.toggleLeftSideMenu();
+			}, 20);
+		});
 	})
 
 	.filter('orderObjectBy', function() { //This isn't a controller lol

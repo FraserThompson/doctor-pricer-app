@@ -32,16 +32,20 @@ angular.module('doctorpricer', ['ionic', 'ion-google-place', 'doctorpricer.contr
 
     .state('result', {
       url: '/result',
+      abstract: true,
       templateUrl: 'templates/result.html',
-      controller: 'ResultController'
+      controller: 'MenuController'
     })
 
-    .state('practice', {
-      url: '/result/practice/{id}',
-      templateUrl: 'templates/practice.html',
-      controller: 'PracticeController'
+    .state('result.practice', {
+      url: '/practice',
+      views: {
+        'menuContent': {
+          templateUrl: 'templates/practice.html',
+          controller: 'PracticeController'
+        }
+      }
     });
-
      $urlRouterProvider.otherwise('/');
   })
 

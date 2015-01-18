@@ -5,6 +5,7 @@ angular.module('doctorpricer.services', [])
 		this.displayAddress = "error";
 		this.coord = [0, 0];
 		this.age = 0;
+		this.selectedPractice = 2;		
 
 		this.calculateAddress = function(successCallback, failCallback) {
 			var geocoder = new google.maps.Geocoder();
@@ -77,7 +78,7 @@ angular.module('doctorpricer.services', [])
 			var okay = {};
 			angular.forEach (self.filteredCollection, function(model, i) {
 				if (model['distance'] <= distance){
-					okay[model['name']] = model;
+					okay[model['id']] = model;
 				}
 			});
 			angular.copy(okay, this.displayCollection);
@@ -87,6 +88,7 @@ angular.module('doctorpricer.services', [])
 		this.filterCollection = function(coord, age) {
 			self.filteredCollection = [];
 			angular.forEach(self.collection, function(val, key) {
+				val['id'] = key;
 				val['start'] = new google.maps.LatLng(coord[0], coord[1]);
 				val['end'] = new google.maps.LatLng(val['coordinates'][0], val['coordinates'][1]);
 				var distance_between = google.maps.geometry.spherical.computeDistanceBetween(val['start'], val['end']);
