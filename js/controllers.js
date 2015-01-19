@@ -1,7 +1,7 @@
 angular.module('doctorpricer.controllers', [])
-	.controller('HomeController', function($scope, $state, $timeout, $sce, $ionicLoading, $ionicPopup, SearchModel, PracticesCollection) {
-		$scope.locationButton = $sce.trustAsHtml("Find practices near you");
+	.controller('HomeController', function($scope, $state, $ionicLoading, SearchModel, PracticesCollection) {
 
+		// Going from typing address to age
 		$scope.update = function(user) {
 			$ionicLoading.show({
      		 	template: "Hold on..."
@@ -14,37 +14,7 @@ angular.module('doctorpricer.controllers', [])
 			$ionicLoading.hide();
 		};
 
-		$scope.continue = function() {		
-			geolocFail = function() {
-			   	var alertPopup = $ionicPopup.alert({
-				     title: "Couldn't find you.",
-				     template: "You might need to enable GPS, or the signal might be weak."
-			   	});
-				$scope.locationButton = $sce.trustAsHtml("Try again?");
-			};
-			if (navigator.geolocation) {
-				var location_timeout = $timeout(geolocFail, 10000);
-				$scope.locationButton = $sce.trustAsHtml("<i class='icon ion-loading-c'></i>");
-				navigator.geolocation.getCurrentPosition(function(response){
-					$timeout.cancel(location_timeout);
-					SearchModel.coord[0] = response.coords['latitude'];
-					SearchModel.coord[1] = response.coords['longitude'];
-					SearchModel.calculateAddress(function() {
-						$scope.$apply(function() {
-							$scope.locationButton = SearchModel.address;
-						});
-						$state.go('age');
-					});
-				}, 
-				function() {
-					$timeout.cancel(location_timeout);
-					geolocFail();
-				}, {enableHighAccuracy:true});
-			} else {
-				geolocFail();
-			}
-		};
-
+		// Going from age to results
 		$scope.finish = function(user) {
 			SearchModel.age = user.age;
 			PracticesCollection.filterCollection(SearchModel.coord, SearchModel.age);
@@ -56,9 +26,10 @@ angular.module('doctorpricer.controllers', [])
 	.controller('MenuController', function($scope, $state, $window, $ionicSideMenuDelegate, $ionicHistory, PracticesCollection, SearchModel) {
 		var self = this;
 
+		$scope.notTablet = $window.innerWidth < 768 ? 1 : 0;
 		$scope.practices = PracticesCollection.displayCollection;
 		$scope.practiceCount = PracticesCollection.length;
-		$scope.menuWidth = $window.innerWidth < 360 ? $window.innerWidth : 360; // Width of the menu should be no more than 360
+		$scope.menuWidth = $scope.notTablet ? $window.innerWidth : 310; // Width of the menu should be restricted if we're on a tablet
 		$scope.address = SearchModel.displayAddress;
 
 		if (SearchModel.displayAddress == "error") {
@@ -78,7 +49,6 @@ angular.module('doctorpricer.controllers', [])
 		};
 
         $scope.toggleLeftSideMenu = function() {
-        	console.log('Toggling left');
     		$ionicSideMenuDelegate.toggleLeft();
   		};
 
@@ -106,30 +76,18 @@ angular.module('doctorpricer.controllers', [])
 	.controller('PracticeController', function($scope, $timeout, $ionicPopup, $window, SearchModel, PracticesCollection) {
 		var self = this;
 
-		$scope.thisPractice = PracticesCollection.displayCollection[SearchModel.selectedPractice];
+		SearchModel.selectedPractice = Object.keys(PracticesCollection.displayCollection)[0];
+
 		$scope.$watch(function() {
 			return SearchModel.selectedPractice;
 		}, function(val) {
 			$scope.thisPractice = PracticesCollection.displayCollection[SearchModel.selectedPractice];
 			$scope.practiceName =  $scope.thisPractice['name'];
-        };
-
         });
 
 		$scope.openURL = function(url) {
 			var ref = window.open(url, '_system');
 		};
-
-		$scope.gmap = {
-            fromCoord: $scope.thisPractice['start'],
-            endCoord: $scope.thisPractice['end'],
-            showError: function (status) {
-			   var alertPopup = $ionicPopup.alert({
-			     title: "Sorry.",
-			     template: "Usually you'd see directions here but there was an unexpected error. Check your connection."
-			   });
-            }
-        };
 
 		$timeout(function () { // Wait for DOM and then wait a bit longer 
 			$timeout(function() {

@@ -5,7 +5,6 @@ angular.module('doctorpricer.services', [])
 		this.displayAddress = "error";
 		this.coord = [0, 0];
 		this.age = 0;
-		this.selectedPractice = 2;		
 
 		this.calculateAddress = function(successCallback, failCallback) {
 			var geocoder = new google.maps.Geocoder();
