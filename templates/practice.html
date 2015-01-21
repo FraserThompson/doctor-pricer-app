@@ -1,15 +1,7 @@
-<ion-view view-title="{{practiceName}}">
+<ion-view view-title="{{thisPractice.name}}">
     <ion-content>
       <div class="card">
-          <div class="item item-text-wrap">
-              <button style="float:right;"class="button button-positive" ng-click='openURL("{{thisPractice.url}}")'>
-                Website
-              </button>
-              <strong>PHO:</strong><p> {{thisPractice.pho}}</p>
-              <strong>Phone:</strong><p> {{thisPractice.phone}}</p>
-              <strong>Address:</strong><p> {{thisPractice.address}}</p>
-              <div start="thisPractice.start" end="thisPractice.end" gmap="gmap"></div>
-          </div>
+        <practice-info></practice-info>
       </div>
     </ion-content>
 </ion-view>

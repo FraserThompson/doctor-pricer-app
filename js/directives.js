@@ -3,7 +3,7 @@ angular.module('doctorpricer.directives', [])
         var counter = 0;
          
         return {
-            restrict: 'A',
+            restrict: 'E',
             replace: false,
             templateUrl: './templates/gmap.html',
             link: function (scope, element, attrs, controller) {
@@ -73,6 +73,14 @@ angular.module('doctorpricer.directives', [])
                     s.parentNode.insertBefore(wf, s);
                 };
             }
+        }
+    })
+
+    .directive('practiceInfo', function($rootScope) {
+        return {
+            restrict: 'E',
+            replace: 'true',
+            templateUrl: './templates/practice-info.html'
         }
     })
 

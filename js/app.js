@@ -1,17 +1,26 @@
 angular.module('doctorpricer', ['ionic', 'ion-google-place', 'doctorpricer.controllers', 'doctorpricer.services', 'doctorpricer.directives'])
-  .run(function($ionicPlatform, $ionicLoading, $ionicPopup) {
+  .run(function($ionicPlatform, $ionicLoading, $ionicPopup, $state) {
     $ionicPlatform.ready(function() {
+        // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
+        // for form inputs)
+        if(window.cordova && window.cordova.plugins.Keyboard) {
+          cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
+        }
+        if(window.StatusBar) {
+          StatusBar.styleDefault();
+        }
+        //Check for wifi
         if(window.Connection) {
-            if(navigator.connection.type == Connection.NONE) {
-              $ionicLoading.hide();
-              $ionicPopup.alert({
-                  title: "Couldn't get practice data",
-                  content: "You'll need an active internet connection to use Doctor Pricer."
-              })
-              .then(function() {
-                ionic.Platform.exitApp();
-              });
-            }
+          if(navigator.connection.type == Connection.NONE) {
+            $ionicLoading.hide();
+            $ionicPopup.alert({
+                title: "Couldn't get practice data",
+                content: "You'll need an active internet connection to use Doctor Pricer."
+            })
+            .then(function() {
+              ionic.Platform.exitApp();
+            });
+          }
         }
     });
   })
@@ -19,7 +28,7 @@ angular.module('doctorpricer', ['ionic', 'ion-google-place', 'doctorpricer.contr
   .config(function($stateProvider, $urlRouterProvider) {
   $stateProvider
     .state('home', {
-      url: '/',
+      url: '/home',
       templateUrl: 'templates/home.html',
       controller: 'HomeController'
     })
@@ -27,14 +36,18 @@ angular.module('doctorpricer', ['ionic', 'ion-google-place', 'doctorpricer.contr
     .state('age', {
       url: '/age',
       templateUrl: 'templates/age.html',
-      controller: 'HomeController'
+      controller: 'AgeController'
     })
 
     .state('result', {
       url: '/result',
       abstract: true,
       templateUrl: 'templates/result.html',
-      controller: 'MenuController'
+      controller: 'MenuController',
+      onEnter: function(PracticesCollection, SearchModel) {
+        PracticesCollection.filterCollection(SearchModel.coord, SearchModel.age);
+        PracticesCollection.changeRadius(2);
+      }
     })
 
     .state('result.practice', {
@@ -46,18 +59,5 @@ angular.module('doctorpricer', ['ionic', 'ion-google-place', 'doctorpricer.contr
         }
       }
     });
-     $urlRouterProvider.otherwise('/');
-  })
-
-.run(function($ionicPlatform) {
-  $ionicPlatform.ready(function() {
-    // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
-    // for form inputs)
-    if(window.cordova && window.cordova.plugins.Keyboard) {
-      cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
-    }
-    if(window.StatusBar) {
-      StatusBar.styleDefault();
-    }
-  })
+     $urlRouterProvider.otherwise('/home');
 });

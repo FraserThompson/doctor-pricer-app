@@ -1,5 +1,5 @@
 angular.module('doctorpricer.services', [])
-	.service('SearchModel', function() {
+	.service('SearchModel', function($rootScope) {
 		var self = this;
 		this.address = "29 dundas street, dunedin, new zealand";
 		this.displayAddress = "error";
@@ -21,11 +21,12 @@ angular.module('doctorpricer.services', [])
 		}
 	})
 
-	.service('PracticesCollection', function($ionicLoading, $ionicPopup, $http) {
+	.service('PracticesCollection', function($ionicLoading, $ionicPopup, $http, $rootScope) {
 		var self = this;
 		var collection = []; //initial fetch
 		this.filteredCollection = []; //after filtering out distances over 15
-		this.displayCollection =  {}; //after filtering for the users radius
+		this.displayCollection =  []; //after filtering for the users radius
+		this.selectedPractice = 0;
 		this.length = 0;
 		$ionicLoading.show({
      		 template: 'Loading...'
@@ -69,17 +70,29 @@ angular.module('doctorpricer.services', [])
 			}
 		};
 
-		var updateCount = function (){
-			self.length = Object.keys(self.displayCollection).length;
+		var updateCount = function(){
+			self.length = self.displayCollection.length;
+			$rootScope.$broadcast('countUpdated', {'count': self.length});
+		}
+
+		var compare = function(a,b) {
+		  if (a.price < b.price)
+		     return -1;
+		  if (a.price > b.price)
+		    return 1;
+		  return 0;
 		}
 
 		this.changeRadius = function(distance) {
-			var okay = {};
+			// var okay = {};
+			var okay = [];
 			angular.forEach (self.filteredCollection, function(model, i) {
 				if (model['distance'] <= distance){
-					okay[model['id']] = model;
+					// okay[model['id']] = model;
+					okay.push(model);
 				}
 			});
+			okay.sort(compare);
 			angular.copy(okay, this.displayCollection);
 			updateCount();
 		};
@@ -97,6 +110,5 @@ angular.module('doctorpricer.services', [])
 					self.filteredCollection.push(val);
 				}
 			});
-			updateCount();
 		}
 	})
