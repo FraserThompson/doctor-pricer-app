@@ -1,86 +1,34 @@
 angular.module('doctorpricer.directives', [])
-    .directive('gmap', function ($window) {
-        var counter = 0;
-         
-        return {
-            restrict: 'E',
-            replace: false,
-            templateUrl: './templates/gmap.html',
-            link: function (scope, element, attrs, controller) {
-                var self = this;
-                this.model = {};
 
-                scope.$watchGroup([attrs.start, attrs.end], function(value) {
-                    self.model.fromCoord = value[0];
-                    self.model.endCoord = value[1];
-                    if ($window.google && $window.google.maps) {
-                        gInit();
-                    } else {
-                        injectGoogle();
-                    };
-                });
-
-                function gInit() {      
-                    var Location = self.model.endCoord,
-                        mapHeight = ($window.innerHeight - 240) + 'px';
-                        document.getElementById("map_canvas").style.height = mapHeight;
-                        directionsService = new google.maps.DirectionsService(),
-                        directionsRenderer = new google.maps.DirectionsRenderer(),
-                        mapOptions = {
-                            center: Location,
-                            zoom: 11,
-                            mapTypeId: google.maps.MapTypeId.ROADMAP
-                        },
-                        map = new google.maps.Map(document.getElementById("map_canvas"),
-                        mapOptions);
-
-                    var setDirections = function () {
-                        var request = {
-                            origin: self.model.fromCoord,
-                            destination: self.model.endCoord,
-                            travelMode: google.maps.TravelMode.DRIVING,
-                            unitSystem: google.maps.UnitSystem.METRIC,
-                            optimizeWaypoints: true
-                        };
-
-                        directionsService.route(request, function (response, status) {
-                            if (status === google.maps.DirectionsStatus.OK) {
-                                directionsRenderer.setDirections(response);
-                                directionsRenderer.setMap(map);
-                            } else {
-                                scope.$apply(function () {
-                                   var alertPopup = $ionicPopup.alert({
-                                     title: "Sorry.",
-                                     template: "Usually you'd see directions here but there was an unexpected error. Check your connection."
-                                   });
-                                });
-                            }
-                        });
-                    }
-                    setDirections();
-                }
-                function injectGoogle() {
-                    var cbId = prefix + ++counter;
-     
-                    $window[cbId] = gInit;
-     
-                    var wf = document.createElement('script');
-                    wf.src = ('https:' == document.location.protocol ? 'https' : 'http') +
-                    '://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&' + 'callback=' + cbId;
-                    wf.type = 'text/javascript';
-                    wf.async = 'true';
-                    var s = document.getElementsByTagName('script')[0];
-                    s.parentNode.insertBefore(wf, s);
-                };
-            }
-        }
-    })
-
-    .directive('practiceInfo', function($rootScope) {
+    .directive('practiceInfo', function($window, $timeout, $rootScope, leafletData) {
         return {
             restrict: 'E',
             replace: 'true',
-            templateUrl: './templates/practice-info.html'
+            templateUrl: './templates/practice-info.html',
+            link: function(scope, elem, attributes) {
+                function initializeMap() {
+                    if (scope.arePractices){
+                        $timeout(function() {
+                            var mapHeight = ($window.innerHeight - 240) + 'px';
+                                document.getElementById("leaflet_map").style.height = mapHeight;
+                                document.getElementById("map_canvas").style.maxHeight = mapHeight;
+                                leafletData.getMap().then(function(map) {
+                                    map.invalidateSize()
+                                });
+                        }, 100);
+                    }
+                }
+
+                $rootScope.$on('countUpdated', function() {
+                    initializeMap();
+                });
+
+ 
+                initializeMap();
+                $timeout(function() {
+                    scope.toggleLeftSideMenu();
+                }, 600)
+            }
         }
     })
 

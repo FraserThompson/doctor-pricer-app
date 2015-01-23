@@ -1,14 +1,15 @@
-angular.module('doctorpricer', ['ionic', 'ion-google-place', 'doctorpricer.controllers', 'doctorpricer.services', 'doctorpricer.directives'])
+angular.module('doctorpricer', ['ionic', 'leaflet-directive', 'ion-google-place', 'doctorpricer.controllers', 'doctorpricer.services', 'doctorpricer.directives'])
   .run(function($ionicPlatform, $ionicLoading, $ionicPopup, $state) {
+    $ionicPlatform.registerBackButtonAction(function (event) {
+    if ($state.$current.name=="home"){
+          ionic.Platform.exitApp();
+        } else if ($state.$current.name=="result.practice"){
+          $state.go('home');
+        } else {
+            navigator.app.backHistory();
+        }
+    }, 100);
     $ionicPlatform.ready(function() {
-        // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
-        // for form inputs)
-        if(window.cordova && window.cordova.plugins.Keyboard) {
-          cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
-        }
-        if(window.StatusBar) {
-          StatusBar.styleDefault();
-        }
         //Check for wifi
         if(window.Connection) {
           if(navigator.connection.type == Connection.NONE) {
@@ -21,6 +22,14 @@ angular.module('doctorpricer', ['ionic', 'ion-google-place', 'doctorpricer.contr
               ionic.Platform.exitApp();
             });
           }
+        }
+        // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
+        // for form inputs)
+        if(window.cordova && window.cordova.plugins.Keyboard) {
+          cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
+        }
+        if(window.StatusBar) {
+          StatusBar.styleDefault();
         }
     });
   })

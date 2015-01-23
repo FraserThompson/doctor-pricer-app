@@ -1,7 +1,7 @@
 angular.module('doctorpricer.services', [])
 	.service('SearchModel', function($rootScope) {
 		var self = this;
-		this.address = "29 dundas street, dunedin, new zealand";
+		this.address = "new zealand";
 		this.displayAddress = "error";
 		this.coord = [0, 0];
 		this.age = 0;
@@ -21,39 +21,36 @@ angular.module('doctorpricer.services', [])
 		}
 	})
 
-	.service('PracticesCollection', function($ionicLoading, $ionicPopup, $http, $rootScope) {
+	.service('PracticesCollection', function($ionicLoading, $http, $timeout, $ionicPopup, $rootScope) {
 		var self = this;
 		var collection = []; //initial fetch
 		this.filteredCollection = []; //after filtering out distances over 15
 		this.displayCollection =  []; //after filtering for the users radius
 		this.selectedPractice = 0;
 		this.length = 0;
+
+		var dataFail = function() {
+			$ionicLoading.hide();
+			var alertPopup = $ionicPopup.alert({
+			     title: "Couldn't get practice data!",
+			     template: "You need an internet connection to use Doctor Pricer."
+			   	})
+			  	.then(function(result) {
+	         		ionic.Platform.exitApp();
+	           	});
+		}
+
+		var data_timeout = $timeout(dataFail, 10000);
 		$ionicLoading.show({
      		 template: 'Loading...'
     	});
-		$.ajax({
-		    cache: false,
-		    dataType: "jsonp",
-		    type: "GET",
-		    crossDomain: true,
-		    jsonp: false,
-		    jsonpCallback: "callback",
-		    url: "https://fraserthompson.github.io/cheap-practice-finder/data.json.js?callback=callback",
-		    async: false,
-		    error: function (request, status, error) {
-			   var alertPopup = $ionicPopup.alert({
-			     title: "Couldn't get practice data!",
-			     template: "Are you sure you have an internet connection?"
-			   })
-			  	.then(function(result) {
-             		ionic.Platform.exitApp();
-               	});
-		    },
-		    success: function(request, status, error){
-		    	$ionicLoading.hide();
-		    	self.collection = request['practices'];
-		    }
-		});
+		var url = "http://fraserthompson.github.io/cheap-practice-finder/data.json.js?callback=JSON_CALLBACK"
+		window.callback = function(data) {
+			$ionicLoading.hide();
+		    $timeout.cancel(data_timeout);
+		    self.collection = data['practices'];
+		}
+		$http.jsonp(url)
 
 		var getPrice = function(age, prices) {
 			if (!prices || prices.length == 0){
@@ -72,7 +69,7 @@ angular.module('doctorpricer.services', [])
 
 		var updateCount = function(){
 			self.length = self.displayCollection.length;
-			$rootScope.$broadcast('countUpdated', {'count': self.length});
+			$rootScope.$broadcast('countUpdated');
 		}
 
 		var compare = function(a,b) {
@@ -84,11 +81,9 @@ angular.module('doctorpricer.services', [])
 		}
 
 		this.changeRadius = function(distance) {
-			// var okay = {};
 			var okay = [];
 			angular.forEach (self.filteredCollection, function(model, i) {
 				if (model['distance'] <= distance){
-					// okay[model['id']] = model;
 					okay.push(model);
 				}
 			});

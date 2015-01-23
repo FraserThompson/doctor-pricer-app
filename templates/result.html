@@ -1,5 +1,5 @@
 <ion-side-menus enable-menu-with-back-views="false">
-	<ion-side-menu-content>
+	<ion-side-menu-content overflow-scroll="true">
 		<ion-nav-bar class='bar-positive'>
 	  		<ion-nav-buttons side="left">
           <button class="button button-icon button-clear ion-navicon" ng-show="notTablet" menu-toggle="left">
@@ -9,7 +9,7 @@
 	<ion-nav-view name="menuContent"></ion-nav-view>
 </ion-side-menu-content>
 
-<ion-side-menu side="left" expose-aside-when="large" scroll="true" width="{{menuWidth}}" overflow-scroll="true">
+<ion-side-menu side="left" expose-aside-when="large" scroll="true" width="menuWidth">
 	 <ion-header-bar class="bar-positive">
 	   	<div class="buttons">  
     		<button class="button button-clear" ng-click="goHome()">
@@ -18,7 +18,7 @@
   		</div>
       	<h1 class="title">{{address}}</h1>
     </ion-header-bar>
-	<ion-content>
+	<ion-content overflow-scroll="true">
 		<label class="item item-input item-select" id="radius-select">
 		    <div class="input-label">
 		      <p>Displaying {{practiceCount}} practices within</p>
@@ -26,7 +26,7 @@
 			<select ng-model="selectedItem" ng-init="selectedItem = radiuses[0]" ng-options="r.name for r in radiuses" ng-change="changeRadius(selectedItem.id)"></select>
 		</label>
 	  	<ion-list can-swipe='false'>
-		  	<ion-item class="item-stable" ng-repeat="practice in practices" ng-click="navPractice({{$index}})" ng-class="{'active': isActive($index)}" menu-close>
+		  	<ion-item class="item-stable" ng-repeat="practice in practices" ng-click="navPractice($index)" ng-class="{'active': isActive($index)}" menu-close>
 				<div id="list-left">
 				  	<h2>{{practice.name}}</h2>
 			  		<p>

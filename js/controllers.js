@@ -1,6 +1,5 @@
 angular.module('doctorpricer.controllers', [])
 	.controller('HomeController', function($scope, $state, $ionicLoading, $ionicPopup, SearchModel, PracticesCollection) {
-
 		// Going from typing address to age
 		$scope.update = function(user) {
 			$ionicLoading.show({
@@ -65,7 +64,9 @@ angular.module('doctorpricer.controllers', [])
 		};
 
         $scope.toggleLeftSideMenu = function() {
-    		$ionicSideMenuDelegate.toggleLeft();
+        	if (!$ionicSideMenuDelegate.isOpen()) {
+    			$ionicSideMenuDelegate.toggleLeft();
+    		}
   		};
 
 		$scope.changeRadius = function(distance) {
@@ -83,21 +84,91 @@ angular.module('doctorpricer.controllers', [])
 		
 	})
 
-	.controller('PracticeController', function($scope, $rootScope, $timeout, $ionicPopup, $window, PracticesCollection) {
+	.controller('PracticeController', function($scope, $rootScope, $timeout, $ionicPopup, $window, leafletData, PracticesCollection) {
+		var directionsService = new google.maps.DirectionsService();
+
+		var local_icons = {
+            defaultIcon: {},
+           	markerRed: {
+                shadowUrl: 'lib/leaflet-0.7.3/images/marker-shadow.png',
+                iconUrl: 'lib/leaflet-0.7.3/images/marker-icon-red.png',
+                iconAnchor:   [12, 40],
+                shadowAnchor: [4, 62],
+                popupAnchor:  [-3, -76]
+            }
+        }
 
 		$scope.$on('changePractice', function(e) {
 			$scope.thisPractice = PracticesCollection.displayCollection[PracticesCollection.selectedPractice];
+			updateMap();
 		});
+
 
 		$scope.openURL = function(url) {
 			var ref = window.open(url, '_system');
 		};
 
+        var setDirections = function (callback) {
+            var request = {
+                origin: $scope.thisPractice.start,
+                destination: $scope.thisPractice.end,
+                travelMode: google.maps.TravelMode.DRIVING,
+                unitSystem: google.maps.UnitSystem.METRIC,
+                optimizeWaypoints: true
+            };
+
+            directionsService.route(request, function (response, status) {
+                if (status === google.maps.DirectionsStatus.OK) {
+                	var latlngs = L.Polyline.fromEncoded(response.routes[0].overview_polyline).getLatLngs();
+                	$scope.paths.p1 = {
+                		color: '#387ef5', 
+                		weight: 6,
+                		latlngs: latlngs,
+                		type: 'polyline'
+                	}
+                	callback();
+                } else {
+                    scope.$apply(function () {
+                       var alertPopup = $ionicPopup.alert({
+                         title: "Sorry.",
+                         template: "Usually you'd see directions here but there was an unexpected error. Check your connection."
+                       });
+                    });
+                }
+            });
+        }
+
+		var updateMap = function() {
+			setDirections(function() {
+				$scope.markers = {
+		            end: {
+		            	title: "Destination",
+		                lat: $scope.thisPractice.end.k,
+		                lng: $scope.thisPractice.end.D,
+		                focus: true,
+		                icon: local_icons.markerRed
+		            },
+		            start: {
+		            	title: "Start",
+		            	lat: $scope.thisPractice.start.k,
+		            	lng: $scope.thisPractice.start.D,
+		            }
+		       	}
+
+				var bounds = L.latLngBounds([$scope.thisPractice.end.k, $scope.thisPractice.end.D], [$scope.thisPractice.start.k, $scope.thisPractice.start.D])
+				leafletData.getMap().then(function(map) {
+					map.fitBounds(bounds);
+	            });
+            })
+		}
+
+		// After a new search
 		$rootScope.$on('countUpdated', function() {
 			if (PracticesCollection.length > 0){
 				$scope.arePractices = 1;
 				$timeout(function() {
 					$scope.thisPractice = PracticesCollection.displayCollection[0];
+			        updateMap();
 				}, 50);
 			} else {
 				$timeout(function() {
@@ -107,16 +178,25 @@ angular.module('doctorpricer.controllers', [])
 			}
 		})
 
-	 	// Wait for DOM and then wait a bit longer  before sliding menu
-    	$timeout(function () {
-			$timeout(function() {
-		    	$scope.toggleLeftSideMenu();
-			}, 50);
-		});
-
         // Initialize the shit
         $rootScope.$broadcast('newSearch');
-		$rootScope.$broadcast('countUpdated', {'count': PracticesCollection.length});
+		$rootScope.$broadcast('countUpdated');
+
+		// Initialize the map
+        angular.extend($scope, {
+            paths: {},
+            markers: {},
+            scrollWheelZoom: false,
+            layers: {
+                baselayers: {
+                    googleRoadmap: {
+                        name: 'Google Streets',
+                        layerType: 'ROADMAP',
+                        type: 'google'
+                    }
+                }
+            }
+        });
 	})
 
 	.filter('orderObjectBy', function() { //This isn't a controller lol

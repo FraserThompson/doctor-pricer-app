@@ -1,9 +1,11 @@
-<div ng-if="arePractices" class="item item-text-wrap">
+<div ng-if="arePractices" class="item item-text-wrap" style="100%">
   <button style="float:right;"class="button button-positive" ng-click='openURL("{{thisPractice.url}}")'>
     Website
   </button>
   <strong>PHO:</strong><p> {{thisPractice.pho}}</p>
   <strong>Phone:</strong><p> {{thisPractice.phone}}</p>
   <strong>Address:</strong><p> {{thisPractice.address}}</p>
-<!--    <gmap start="thisPractice.start" end="thisPractice.end"></gmap> -->
+	<div id="map_canvas">
+  		<leaflet id="leaflet_map" markers="markers" paths="paths" height="300px" width="100%" layers="layers"></leaflet>
+  	</div>
 </div>
