@@ -1,6 +1,6 @@
 <ion-side-menus enable-menu-with-back-views="false">
 	<ion-side-menu-content overflow-scroll="true">
-		<ion-nav-bar class='bar-positive'>
+		<ion-nav-bar class='bar-cool'>
 	  		<ion-nav-buttons side="left">
           <button class="button button-icon button-clear ion-navicon" ng-show="notTablet" menu-toggle="left">
           </button>
@@ -9,8 +9,8 @@
 	<ion-nav-view name="menuContent"></ion-nav-view>
 </ion-side-menu-content>
 
-<ion-side-menu side="left" expose-aside-when="large" scroll="true" width="menuWidth">
-	 <ion-header-bar class="bar-positive">
+<ion-side-menu side="left" expose-aside-when="large" scroll="true" width="{{notTablet ? innerWidth : 310}}">
+	 <ion-header-bar class="bar-cool">
 	   	<div class="buttons">  
     		<button class="button button-clear" ng-click="goHome()">
     			<i class="ion-chevron-left"></i>
@@ -21,7 +21,7 @@
 	<ion-content overflow-scroll="true">
 		<label class="item item-input item-select" id="radius-select">
 		    <div class="input-label">
-		      <p>Displaying {{practiceCount}} practices within</p>
+		      <p>Found {{practiceCount}} practices within</p>
 		    </div>
 			<select ng-model="selectedItem" ng-init="selectedItem = radiuses[0]" ng-options="r.name for r in radiuses" ng-change="changeRadius(selectedItem.id)"></select>
 		</label>

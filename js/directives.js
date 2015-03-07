@@ -1,37 +1,4 @@
 angular.module('doctorpricer.directives', [])
-
-    .directive('practiceInfo', function($window, $timeout, $rootScope, leafletData) {
-        return {
-            restrict: 'E',
-            replace: 'true',
-            templateUrl: './templates/practice-info.html',
-            link: function(scope, elem, attributes) {
-                function initializeMap() {
-                    if (scope.arePractices){
-                        $timeout(function() {
-                            var mapHeight = ($window.innerHeight - 240) + 'px';
-                                document.getElementById("leaflet_map").style.height = mapHeight;
-                                document.getElementById("map_canvas").style.maxHeight = mapHeight;
-                                leafletData.getMap().then(function(map) {
-                                    map.invalidateSize()
-                                });
-                        }, 100);
-                    }
-                }
-
-                $rootScope.$on('countUpdated', function() {
-                    initializeMap();
-                });
-
- 
-                initializeMap();
-                $timeout(function() {
-                    scope.toggleLeftSideMenu();
-                }, 600)
-            }
-        }
-    })
-
     .directive('geolocateButton', function($sce, $timeout, $ionicPopup, $state, SearchModel) {
          return {
             restrict: 'E',

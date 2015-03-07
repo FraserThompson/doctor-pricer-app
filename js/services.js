@@ -21,9 +21,10 @@ angular.module('doctorpricer.services', [])
 		}
 	})
 
-	.service('PracticesCollection', function($ionicLoading, $http, $timeout, $ionicPopup, $rootScope) {
+	.service('PracticesCollection', function($ionicLoading, $window, $http, $timeout, $ionicPopup, $rootScope) {
 		var self = this;
 		var collection = []; //initial fetch
+		this.screenHeight = $window.innerHeight;
 		this.filteredCollection = []; //after filtering out distances over 15
 		this.displayCollection =  []; //after filtering for the users radius
 		this.selectedPractice = 0;
@@ -95,7 +96,6 @@ angular.module('doctorpricer.services', [])
 		this.filterCollection = function(coord, age) {
 			self.filteredCollection = [];
 			angular.forEach(self.collection, function(val, key) {
-				val['id'] = key;
 				val['start'] = new google.maps.LatLng(coord[0], coord[1]);
 				val['end'] = new google.maps.LatLng(val['coordinates'][0], val['coordinates'][1]);
 				var distance_between = google.maps.geometry.spherical.computeDistanceBetween(val['start'], val['end']);

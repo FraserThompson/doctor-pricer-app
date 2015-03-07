@@ -2,18 +2,13 @@ angular.module('doctorpricer.controllers', [])
 	.controller('HomeController', function($scope, $state, $ionicLoading, $ionicPopup, SearchModel, PracticesCollection) {
 		// Going from typing address to age
 		$scope.update = function(user) {
-			$ionicLoading.show({
-     		 	template: "Hold on..."
-    		});
     		if (!user.location){
-				$ionicLoading.hide();
 	    		var alertPopup = $ionicPopup.alert({
 				     title: "Couldn't geolocate your address!",
 				     template: "Try selecting one of the suggestions in the list."
 				   })
 	    	}
 	    	else if (user.location.address_components.length == 1) {
-	    		$ionicLoading.hide();
 	    		var alertPopup = $ionicPopup.alert({
 				     title: "Error",
 				     template: "Your address isn't specific enough."
@@ -24,7 +19,6 @@ angular.module('doctorpricer.controllers', [])
 				SearchModel.coord[1] = user.location.geometry.location['D'];
 				SearchModel.displayAddress = user.location.address_components[0]['short_name'] + " " + user.location.address_components[1]['short_name'];
 				$state.go('age');
-				$ionicLoading.hide();
 			}
 		};
 	})
@@ -40,15 +34,16 @@ angular.module('doctorpricer.controllers', [])
 
 	.controller('MenuController', function($scope, $state, $rootScope, $window, $ionicSideMenuDelegate, $ionicHistory, SearchModel, PracticesCollection) {
 		$scope.notTablet = $window.innerWidth < 768 ? 1 : 0;
-		$scope.menuWidth = $scope.notTablet ? $window.innerWidth : 310;
+		$scope.innerWidth = $window.innerWidth;
 		$scope.practices = PracticesCollection.displayCollection;
+  		$scope.userAddress = SearchModel.address;
 
-		$rootScope.$on('newSearch', function() {
+		$scope.$on('newSearch', function() {
 			PracticesCollection.selectedPractice = 0;
         	$scope.address = SearchModel.displayAddress;
 		})
 
-		$rootScope.$on('countUpdated', function() {
+		$scope.$on('countUpdated', function() {
 			$scope.practiceCount = PracticesCollection.length;
 		})
 
@@ -86,27 +81,69 @@ angular.module('doctorpricer.controllers', [])
 
 	.controller('PracticeController', function($scope, $rootScope, $timeout, $ionicPopup, $window, leafletData, PracticesCollection) {
 		var directionsService = new google.maps.DirectionsService();
-
-		var local_icons = {
-            defaultIcon: {},
-           	markerRed: {
-                shadowUrl: 'lib/leaflet-0.7.3/images/marker-shadow.png',
-                iconUrl: 'lib/leaflet-0.7.3/images/marker-icon-red.png',
-                iconAnchor:   [12, 40],
-                shadowAnchor: [4, 62],
-                popupAnchor:  [-3, -76]
+		// Stuff to initialize the map with
+        angular.extend($scope, {
+			center: {
+				lat: 0,
+				lng: 0,
+				zoom: 10
+			},
+            paths: {},
+            markers: {},
+            scrollWheelZoom: false,
+            layers: {
+            	baselayers: {
+            		osm: {
+            			name: 'OSM',
+            			url: 'http://otile1.mqcdn.com/tiles/1.0.0/map/{z}/{x}/{y}.png',
+            			type: 'xyz',
+            			layerOptions: {
+                            attribution: 'Tiles Courtesy of <a href="http://www.mapquest.com/" target="_system">MapQuest</a>',
+                        }
+            		}
+            	}
             }
-        }
+        });
 
 		$scope.$on('changePractice', function(e) {
 			$scope.thisPractice = PracticesCollection.displayCollection[PracticesCollection.selectedPractice];
-			updateMap();
+			updateMap(function() {});
 		});
-
 
 		$scope.openURL = function(url) {
 			var ref = window.open(url, '_system');
 		};
+
+		$scope.openDirections = function() {
+			var url = "http://maps.apple.com/?saddr=" + $scope.userAddress + "&daddr=" + $scope.thisPractice.address;
+			var ref = window.open(url, '_system');
+		}
+
+         /* Icons for markers */
+	   	var local_icons = {
+	        markerBlue: {
+	        	type: 'awesomeMarker',
+	        	icon: 'icon ion-home',
+	        	markerColor: 'blue'
+	        },
+	       	markerRed: {
+	            type: 'awesomeMarker',
+	            icon: 'icon ion-medkit',
+	            markerColor: 'red'
+	    	}
+	   	};
+
+		var initializeMap = function(callback) {
+            $timeout(function() {
+                var mapHeight = (PracticesCollection.screenHeight - 240) + 'px';
+                    document.getElementById("leaflet_map").style.height = mapHeight;
+                    document.getElementById("map_canvas").style.maxHeight = mapHeight;
+                    leafletData.getMap().then(function(map) {
+                        map.invalidateSize();
+                        callback();
+                    });
+            }, 100);
+        }
 
         var setDirections = function (callback) {
             var request = {
@@ -138,7 +175,7 @@ angular.module('doctorpricer.controllers', [])
             });
         }
 
-		var updateMap = function() {
+		var updateMap = function(callback) {
 			setDirections(function() {
 				$scope.markers = {
 		            end: {
@@ -152,63 +189,38 @@ angular.module('doctorpricer.controllers', [])
 		            	title: "Start",
 		            	lat: $scope.thisPractice.start.k,
 		            	lng: $scope.thisPractice.start.D,
+		            	icon: local_icons.markerBlue
 		            }
 		       	}
 
 				var bounds = L.latLngBounds([$scope.thisPractice.end.k, $scope.thisPractice.end.D], [$scope.thisPractice.start.k, $scope.thisPractice.start.D])
 				leafletData.getMap().then(function(map) {
-					map.fitBounds(bounds);
+					map.fitBounds(bounds, {padding: [15, 15]});
+					callback();
 	            });
             })
 		}
 
 		// After a new search
-		$rootScope.$on('countUpdated', function() {
+		$scope.$on('countUpdated', function() {
 			if (PracticesCollection.length > 0){
 				$scope.arePractices = 1;
-				$timeout(function() {
+				initializeMap(function() {
 					$scope.thisPractice = PracticesCollection.displayCollection[0];
-			        updateMap();
-				}, 50);
+			        updateMap(function() {
+			        	$scope.toggleLeftSideMenu();
+			        });
+				});
 			} else {
+                $scope.arePractices = 0;
 				$timeout(function() {
 					$scope.thisPractice = {'name': 'No results'}
-				}, 50);
-                $scope.arePractices = 0;
+					$scope.toggleLeftSideMenu();
+				}, 100);
 			}
 		})
 
         // Initialize the shit
         $rootScope.$broadcast('newSearch');
 		$rootScope.$broadcast('countUpdated');
-
-		// Initialize the map
-        angular.extend($scope, {
-            paths: {},
-            markers: {},
-            scrollWheelZoom: false,
-            layers: {
-                baselayers: {
-                    googleRoadmap: {
-                        name: 'Google Streets',
-                        layerType: 'ROADMAP',
-                        type: 'google'
-                    }
-                }
-            }
-        });
-	})
-
-	.filter('orderObjectBy', function() { //This isn't a controller lol
-    return function(items, field, reverse) {
-      var filtered = [];
-      angular.forEach(items, function(item) {
-        filtered.push(item);
-      });
-      filtered.sort(function (a, b) {
-        return (a[field] > b[field] ? 1 : -1);
-      });
-      if(reverse) filtered.reverse();
-      return filtered;
-    };
-  });
+	});

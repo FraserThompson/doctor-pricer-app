@@ -3,13 +3,12 @@ angular.module('doctorpricer', ['ionic', 'leaflet-directive', 'ion-google-place'
     $ionicPlatform.registerBackButtonAction(function (event) {
     if ($state.$current.name=="home"){
           ionic.Platform.exitApp();
-        } else if ($state.$current.name=="result.practice"){
-          $state.go('home');
         } else {
             navigator.app.backHistory();
         }
     }, 100);
     $ionicPlatform.ready(function() {
+        navigator.splashscreen.hide()
         //Check for wifi
         if(window.Connection) {
           if(navigator.connection.type == Connection.NONE) {

@@ -1,7 +1,18 @@
 <ion-view view-title="{{thisPractice.name}}">
     <ion-content>
       <div class="card">
-        <practice-info></practice-info>
+		<div ng-if="arePractices" class="item item-text-wrap" style="100%">
+			<div style="float:right;">
+			  	<button class="button button-block button-balanced" ng-click='openURL(thisPractice.url)'>Website</button>
+			  	<button class="button button-block button-balanced" ng-click='openDirections()'>Directions</button>
+		  	</div>
+		    <p><strong>PHO</strong></p><p>{{thisPractice.pho}}</p>
+		    <p><strong>Phone</strong></p><p>{{thisPractice.phone}}</p>
+		    <p><strong>Address</strong></p><p>{{thisPractice.address}}</p>
+			<div id="map_canvas">
+		  		<leaflet id="leaflet_map" markers="markers" paths="paths" height="300px" width="100%" layers="layers"></leaflet>
+		  	</div>
+		</div>
       </div>
     </ion-content>
 </ion-view>

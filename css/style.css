@@ -25,7 +25,18 @@
 #list-right {
 	float: right;
 }
+.button-balanced {
+  background-color: #28A15D !important;
+}
 
+.bar-cool {
+  background-color: #0089CC; 
+  color: white;
+}
+
+.bar-cool h1 {
+  color: white;
+}
 #list-left {
 	float:left;
 	max-width: 80%;
