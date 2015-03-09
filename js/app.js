@@ -51,9 +51,13 @@ angular.module('doctorpricer', ['ionic', 'leaflet-directive', 'ion-google-place'
       url: '/result',
       abstract: true,
       templateUrl: 'templates/result.html',
-      controller: 'MenuController',
-      onEnter: function(PracticesCollection, SearchModel) {
-        PracticesCollection.filterCollection(SearchModel.coord, SearchModel.age);
+      controller: 'MenuController',        
+      resolve: {
+        practices: function(SearchModel, PracticesCollection) {
+          return PracticesCollection.fetchData(SearchModel.coord[0], SearchModel.coord[1], SearchModel.age);
+        }
+      },
+      onEnter: function(PracticesCollection) {
         PracticesCollection.changeRadius(2);
       }
     })

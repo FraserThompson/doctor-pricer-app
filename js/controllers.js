@@ -38,12 +38,12 @@ angular.module('doctorpricer.controllers', [])
 		$scope.practices = PracticesCollection.displayCollection;
   		$scope.userAddress = SearchModel.address;
 
-		$scope.$on('newSearch', function() {
+		$rootScope.$on('newSearch', function() {
 			PracticesCollection.selectedPractice = 0;
         	$scope.address = SearchModel.displayAddress;
 		})
 
-		$scope.$on('countUpdated', function() {
+		$rootScope.$on('countUpdated', function() {
 			$scope.practiceCount = PracticesCollection.length;
 		})
 
@@ -79,7 +79,7 @@ angular.module('doctorpricer.controllers', [])
 		
 	})
 
-	.controller('PracticeController', function($scope, $rootScope, $timeout, $ionicPopup, $window, leafletData, PracticesCollection) {
+	.controller('PracticeController', function($scope, $rootScope, $timeout, $ionicPopup, $window, leafletData, PracticesCollection, SearchModel) {
 		var directionsService = new google.maps.DirectionsService();
 		// Stuff to initialize the map with
         angular.extend($scope, {
@@ -142,17 +142,19 @@ angular.module('doctorpricer.controllers', [])
                         map.invalidateSize();
                         callback();
                     });
-            }, 100);
+            }, 200);
         }
 
         var setDirections = function (callback) {
-            var request = {
-                origin: $scope.thisPractice.start,
-                destination: $scope.thisPractice.end,
-                travelMode: google.maps.TravelMode.DRIVING,
-                unitSystem: google.maps.UnitSystem.METRIC,
-                optimizeWaypoints: true
-            };
+			var destination = new google.maps.LatLng($scope.thisPractice.coords[0], $scope.thisPractice.coords[1]);
+			var origin = new google.maps.LatLng(SearchModel.coord[0], SearchModel.coord[1]);
+	        var request = {
+	            origin: origin,
+	            destination: destination,
+	            travelMode: google.maps.TravelMode.DRIVING,
+	            unitSystem: google.maps.UnitSystem.METRIC,
+	            optimizeWaypoints: true
+	        };
 
             directionsService.route(request, function (response, status) {
                 if (status === google.maps.DirectionsStatus.OK) {
@@ -180,20 +182,20 @@ angular.module('doctorpricer.controllers', [])
 				$scope.markers = {
 		            end: {
 		            	title: "Destination",
-		                lat: $scope.thisPractice.end.k,
-		                lng: $scope.thisPractice.end.D,
+		                lat: $scope.thisPractice.coords[0],
+		                lng: $scope.thisPractice.coords[1],
 		                focus: true,
 		                icon: local_icons.markerRed
 		            },
 		            start: {
 		            	title: "Start",
-		            	lat: $scope.thisPractice.start.k,
-		            	lng: $scope.thisPractice.start.D,
+		            	lat: SearchModel.coord[0],
+		            	lng: SearchModel.coord[1],
 		            	icon: local_icons.markerBlue
 		            }
 		       	}
 
-				var bounds = L.latLngBounds([$scope.thisPractice.end.k, $scope.thisPractice.end.D], [$scope.thisPractice.start.k, $scope.thisPractice.start.D])
+				var bounds = L.latLngBounds([$scope.thisPractice.coords[0], $scope.thisPractice.coords[1]], [SearchModel.coord[0], SearchModel.coord[1]])
 				leafletData.getMap().then(function(map) {
 					map.fitBounds(bounds, {padding: [15, 15]});
 					callback();
@@ -202,7 +204,7 @@ angular.module('doctorpricer.controllers', [])
 		}
 
 		// After a new search
-		$scope.$on('countUpdated', function() {
+		$rootScope.$on('countUpdated', function() {
 			if (PracticesCollection.length > 0){
 				$scope.arePractices = 1;
 				initializeMap(function() {

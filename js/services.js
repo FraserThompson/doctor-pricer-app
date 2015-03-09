@@ -21,11 +21,10 @@ angular.module('doctorpricer.services', [])
 		}
 	})
 
-	.service('PracticesCollection', function($ionicLoading, $window, $http, $timeout, $ionicPopup, $rootScope) {
+	.service('PracticesCollection', function($ionicLoading, $window, $q, $http, $timeout, $ionicPopup, $rootScope) {
 		var self = this;
 		var collection = []; //initial fetch
 		this.screenHeight = $window.innerHeight;
-		this.filteredCollection = []; //after filtering out distances over 15
 		this.displayCollection =  []; //after filtering for the users radius
 		this.selectedPractice = 0;
 		this.length = 0;
@@ -41,31 +40,22 @@ angular.module('doctorpricer.services', [])
 	           	});
 		}
 
-		var data_timeout = $timeout(dataFail, 10000);
-		$ionicLoading.show({
-     		 template: 'Loading...'
-    	});
-		var url = "http://fraserthompson.github.io/cheap-practice-finder/data.json.js?callback=JSON_CALLBACK"
-		window.callback = function(data) {
-			$ionicLoading.hide();
-		    $timeout.cancel(data_timeout);
-		    self.collection = data['practices'];
-		}
-		$http.jsonp(url)
-
-		var getPrice = function(age, prices) {
-			if (!prices || prices.length == 0){
-				return 1000;
-			}
-			for (var i = 0; i < prices.length - 1; ++i){
-				if (age >= prices[i].age && age < prices[i+1].age){
-					break;
-				}
-			}
-			return prices[i].price;
-			if (prices[i].price == 999){
-				return -1;
-			}
+		this.fetchData = function(lat, lng, age) {
+			$ionicLoading.show({
+	     		 template: 'Loading...'
+	    	});
+			var defer = $q.defer();
+			$http.get('https://young-ocean-1948.herokuapp.com/practices/' + lat + ',' + lng + '/' + age)
+				.success(function(data) {
+					self.collection = data;
+					$ionicLoading.hide();
+					defer.resolve();
+				})
+				.error(function(data, status) {
+					dataFail();
+					defer.reject();
+				})
+			return defer.promise;
 		};
 
 		var updateCount = function(){
@@ -83,7 +73,7 @@ angular.module('doctorpricer.services', [])
 
 		this.changeRadius = function(distance) {
 			var okay = [];
-			angular.forEach (self.filteredCollection, function(model, i) {
+			angular.forEach (self.collection, function(model, i) {
 				if (model['distance'] <= distance){
 					okay.push(model);
 				}
@@ -93,17 +83,4 @@ angular.module('doctorpricer.services', [])
 			updateCount();
 		};
 
-		this.filterCollection = function(coord, age) {
-			self.filteredCollection = [];
-			angular.forEach(self.collection, function(val, key) {
-				val['start'] = new google.maps.LatLng(coord[0], coord[1]);
-				val['end'] = new google.maps.LatLng(val['coordinates'][0], val['coordinates'][1]);
-				var distance_between = google.maps.geometry.spherical.computeDistanceBetween(val['start'], val['end']);
-				val['distance'] = distance_between/1000;
-				val['price'] = getPrice(age, val['prices']);
-				if (val['distance'] <= 15){
-					self.filteredCollection.push(val);
-				}
-			});
-		}
 	})
